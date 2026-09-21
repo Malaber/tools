@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="Merge multiple GPX cycling activities locally in your browser.">
+  <title>GPX Helper</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="container">
+    <header>
+      <p class="eyebrow">tools.malaber.de</p>
+      <h1>GPX Helper</h1>
+      <p class="lede">Combine multiple GPX activities into one file. Processing happens entirely in your browser; files are never uploaded.</p>
+    </header>
+
+    <section class="panel" aria-labelledby="files-heading">
+      <div class="section-heading">
+        <div>
+          <h2 id="files-heading">1. Add GPX files</h2>
+          <p>Drop files here or select them from your device. The order below becomes the merge order.</p>
+        </div>
+        <button id="sortByTime" class="secondary" type="button" disabled>Sort by start time</button>
+      </div>
+
+      <label id="dropZone" class="drop-zone" for="fileInput">
+        <span class="drop-title">Choose GPX files</span>
+        <span class="drop-subtitle">or drag and drop them here</span>
+        <input id="fileInput" type="file" accept=".gpx,application/gpx+xml,application/xml,text/xml" multiple>
+      </label>
+
+      <p id="fileStatus" class="status" role="status" aria-live="polite">No files selected.</p>
+      <ol id="fileList" class="file-list" aria-label="Selected GPX files"></ol>
+    </section>
+
+    <section class="panel" aria-labelledby="settings-heading">
+      <h2 id="settings-heading">2. Merge settings</h2>
+
+      <div class="form-grid">
+        <label>
+          <span>Track name</span>
+          <input id="trackName" type="text" value="Merged cycling activity" autocomplete="off">
+        </label>
+
+        <label>
+          <span>Track structure</span>
+          <select id="segmentMode">
+            <option value="separate" selected>Keep source segments separate</option>
+            <option value="single">Join all points into one segment</option>
+          </select>
+          <small>Separate segments avoids drawing a fake straight line between rides.</small>
+        </label>
+
+        <label>
+          <span>Timestamps</span>
+          <select id="timeMode">
+            <option value="preserve" selected>Preserve original timestamps</option>
+            <option value="continuous">Shift each file to continue after the previous one</option>
+            <option value="remove">Remove timestamps</option>
+          </select>
+        </label>
+
+        <label id="gapField" hidden>
+          <span>Gap between activities</span>
+          <span class="input-suffix">
+            <input id="gapSeconds" type="number" min="0" step="1" value="1" inputmode="numeric">
+            <span>seconds</span>
+          </span>
+        </label>
+      </div>
+
+      <p class="hint"><strong>Recommended for Strava:</strong> keep source segments separate and preserve timestamps unless you specifically need a single artificial activity timeline.</p>
+    </section>
+
+    <section class="panel" aria-labelledby="preview-heading">
+      <div class="section-heading">
+        <div>
+          <h2 id="preview-heading">3. Preview</h2>
+          <p id="summary">Add at least one valid GPX file to see a summary.</p>
+        </div>
+      </div>
+
+      <div id="previewEmpty" class="preview-empty">No route to preview.</div>
+      <svg id="preview" class="preview" viewBox="0 0 1000 500" role="img" aria-label="Preview of the merged GPX route" hidden></svg>
+    </section>
+
+    <section class="actions" aria-label="Export">
+      <button id="download" class="primary" type="button" disabled>Download merged GPX</button>
+      <button id="clear" class="secondary" type="button" disabled>Clear</button>
+    </section>
+
+    <details class="panel compact">
+      <summary>What does “combine” mean?</summary>
+      <p>A GPX activity is normally a track containing one or more track segments. This tool can place every source segment into one new track, preserving the original points and extensions, or concatenate all points into one segment.</p>
+      <p>For separate real-world rides, keeping segments separate is usually safer because a continuous segment may imply movement between the end of one ride and the start of the next.</p>
+    </details>
+  </main>
+
+  <template id="fileItemTemplate">
+    <li class="file-item">
+      <div class="file-info">
+        <strong class="file-name"></strong>
+        <span class="file-meta"></span>
+      </div>
+      <div class="file-actions" aria-label="File actions">
+        <button type="button" class="icon-button move-up" aria-label="Move file up" title="Move up">↑</button>
+        <button type="button" class="icon-button move-down" aria-label="Move file down" title="Move down">↓</button>
+        <button type="button" class="icon-button remove" aria-label="Remove file" title="Remove">×</button>
+      </div>
+    </li>
+  </template>
+
+  <script src="./app.js" defer></script>
+</body>
+</html>
