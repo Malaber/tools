@@ -1,14 +1,16 @@
-# GPX Helper
+# GPX
 
 A static, dependency-free browser tool for combining multiple GPX cycling activities.
 
 ## Hosting
 
-Copy the contents of this directory to:
+Published at:
 
-`https://tools.malaber.de/gpx-helper/`
+`https://tools.malaber.de/gpx/`
 
-No backend, build step, npm dependencies, service worker, or external CDN is required.
+Run `npm start` from the repository root to build and preview the site with its shared navigation and footer. The site build discovers this folder automatically; the page title and description supply its overview card. Pushes to `main` deploy through GitHub Actions.
+
+The browser tool itself requires no backend, npm dependencies, service worker, or external CDN.
 
 ## Features
 

@@ -1,0 +1,11 @@
+{
+  "name": "malaber-tools",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=24" },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test",
+    "start": "npm run build && node scripts/serve.mjs"
+  }
+}

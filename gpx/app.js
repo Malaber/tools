@@ -272,7 +272,7 @@
     const output = document.implementation.createDocument(GPX_NS, 'gpx');
     const root = output.documentElement;
     root.setAttribute('version', '1.1');
-    root.setAttribute('creator', 'tools.malaber.de/gpx-helper');
+    root.setAttribute('creator', 'tools.malaber.de/gpx');
     root.setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');
     root.setAttributeNS('http://www.w3.org/2001/XMLSchema-instance', 'xsi:schemaLocation', `${GPX_NS} http://www.topografix.com/GPX/1/1/gpx.xsd`);
 
