@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Plan vacation days around public holidays in Germany. Set your workweek and leave allowance, then keep your plan in your browser.">
+  <title>Vacation Planner</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script type="module" src="./app.js"></script>
+</head>
+<body class="vacation">
+  <main class="planner" id="main">
+    <header class="planner-header">
+      <div>
+        <h1 data-text="title">Vacation Planner</h1>
+        <p data-text="intro">Make the most of your days off with Germany’s public holidays.</p>
+      </div>
+      <label class="language">
+        <span class="sr-only" data-text="language">Language</span>
+        <select id="language">
+          <option value="en" lang="en">English</option>
+          <option value="de" lang="de">Deutsch</option>
+        </select>
+      </label>
+    </header>
+
+    <section class="balance" aria-label="Leave balance" data-label="balance">
+      <div class="balance-main">
+        <span class="balance-label" data-text="remaining">Days remaining</span>
+        <strong id="remaining">30</strong>
+        <progress id="used-meter" max="30" value="0" aria-label="Leave used" data-label="usedLabel"></progress>
+      </div>
+      <div class="balance-stat">
+        <span class="balance-label" data-text="planned">Days planned</span>
+        <strong id="used">0</strong>
+      </div>
+      <div class="balance-stat">
+        <span class="balance-label" data-text="allowance">Leave allowance</span>
+        <strong id="total">30</strong>
+      </div>
+    </section>
+
+    <div class="planner-layout">
+      <details class="panel settings" id="settings" open>
+        <summary><h2 data-text="settings">Plan settings</h2></summary>
+        <div class="settings-body">
+          <label class="field">
+            <span data-text="region">Federal state</span>
+            <select id="region"></select>
+          </label>
+          <fieldset id="local-holidays" hidden>
+            <legend data-text="localHolidays">Municipal holidays</legend>
+            <div id="local-options" class="local-options"></div>
+          </fieldset>
+          <fieldset>
+            <legend data-text="workweek">Working days</legend>
+            <div id="workdays" class="workdays"></div>
+          </fieldset>
+          <form id="settings-form">
+            <label class="field">
+              <span data-text="allowance">Leave allowance</span>
+              <input id="allowance" type="number" min="0" max="3650" step="1" inputmode="numeric" required>
+            </label>
+            <fieldset>
+              <legend data-text="period">Planning period</legend>
+              <div class="period-shortcuts">
+                <button type="button" class="subtle" id="this-year" data-text="thisYear">This year</button>
+                <button type="button" class="subtle" id="next-year" data-text="nextYear">Next year</button>
+              </div>
+              <label class="field">
+                <span data-text="from">From</span>
+                <input type="date" id="period-start" required>
+              </label>
+              <label class="field">
+                <span data-text="to">To</span>
+                <input type="date" id="period-end" required>
+              </label>
+            </fieldset>
+            <p class="feedback" id="settings-feedback" role="status" hidden></p>
+            <button class="button primary" type="submit" data-text="applySettings">Apply period &amp; allowance</button>
+          </form>
+          <p class="small" id="outside-note" hidden></p>
+        </div>
+      </details>
+
+      <section class="panel calendar-panel" aria-labelledby="calendar-title">
+        <div class="calendar-header">
+          <div>
+            <h2 id="calendar-title" data-text="calendar">Calendar</h2>
+            <p id="period-caption"></p>
+          </div>
+          <div id="views" class="segmented" role="group" aria-label="Calendar view" data-label="view">
+            <button type="button" id="planner-view" aria-pressed="true" data-text="planner">Plan leave</button>
+            <button type="button" id="heatmap-view" aria-pressed="false" data-text="heatmap">Holiday heatmap</button>
+          </div>
+        </div>
+        <div class="calendar-controls">
+          <div class="calendar-jump">
+            <label class="field year-field" id="year-field" hidden>
+              <span data-text="year">Year</span>
+              <select id="view-year"></select>
+            </label>
+            <label class="field">
+              <span data-text="jump">Jump to month</span>
+              <select id="jump-month"></select>
+            </label>
+          </div>
+          <button type="button" id="add-dates" class="button primary" data-text="addDates">Add dates</button>
+        </div>
+        <div class="calendar-guide">
+          <p id="calendar-hint" class="small"></p>
+          <ul class="legend" id="plan-legend">
+            <li><span class="swatch swatch-planned"></span><span data-text="leave">Vacation</span></li>
+            <li><span class="swatch swatch-holiday"></span><span data-text="publicHoliday">Public holiday</span></li>
+            <li><span class="swatch swatch-off"></span><span data-text="offDay">Non-working day</span></li>
+          </ul>
+          <ul class="legend" id="heatmap-legend" hidden>
+            <li><span class="swatch heat-1"></span><span data-text="fewStates">1–4 states</span></li>
+            <li><span class="swatch heat-2"></span><span data-text="someStates">5–15 states</span></li>
+            <li><span class="swatch heat-3"></span><span data-text="allStates">All 16 states</span></li>
+            <li><span class="swatch heat-local"></span><span data-text="localOnly">Municipal only</span></li>
+            <li><span class="swatch swatch-local"></span><span data-text="localLegend">Selected location</span></li>
+          </ul>
+          <a class="blocks-link" href="#planned-title" data-text="blocks">Planned time off</a>
+          <p class="feedback" id="calendar-feedback" role="status" hidden></p>
+        </div>
+        <div id="months" class="months" aria-describedby="calendar-hint"></div>
+      </section>
+
+      <div class="side-panels">
+        <section class="panel planned-panel" aria-labelledby="planned-title">
+          <h2 id="planned-title" tabindex="-1" data-text="blocks">Planned time off</h2>
+          <p class="small" id="empty-plan" data-text="empty">Add dates to the calendar to see your planned time off here.</p>
+          <ul id="blocks" class="blocks" hidden></ul>
+        </section>
+        <section class="panel backup" aria-labelledby="backup-title">
+          <h2 id="backup-title" data-text="backup">Plan backup</h2>
+          <p class="small" id="storage" data-text="localStorage">Your plan is saved in this browser. Export a JSON backup to keep a copy.</p>
+          <div class="backup-actions">
+            <button type="button" class="button" id="export" data-text="export">Export JSON</button>
+            <button type="button" class="button" id="import" data-text="import">Import JSON</button>
+            <input id="file" type="file" accept=".json,application/json" hidden>
+          </div>
+          <p class="feedback" id="backup-feedback" role="status" hidden></p>
+        </section>
+      </div>
+    </div>
+
+    <p class="source-note">
+      <span data-text="sourceNote">Future dates follow current rules. Municipal holidays apply where selected in plan settings.</span>
+      <a href="https://www.bundesbank.de/en/tasks/payment-systems/target/public-holidays-in-germany-2027-764518" data-text="holidaySource">Bundesbank holiday calendar</a>
+    </p>
+
+    <dialog id="date-dialog" aria-labelledby="date-dialog-title">
+      <form id="date-form">
+        <h2 id="date-dialog-title"></h2>
+        <p class="small" id="date-dialog-note"></p>
+        <label class="field">
+          <span data-text="from">From</span>
+          <input type="date" id="selection-start" required>
+        </label>
+        <label class="field" id="selection-end-field">
+          <span data-text="to">To</span>
+          <input type="date" id="selection-end" required>
+        </label>
+        <p class="feedback" id="date-feedback" role="status" hidden></p>
+        <div class="dialog-actions">
+          <button type="button" class="button" data-close="date-dialog" data-text="cancel">Cancel</button>
+          <button type="submit" class="button primary" id="save-dates"></button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="holiday-dialog" aria-labelledby="holiday-title">
+      <h2 id="holiday-title"></h2>
+      <ul id="holiday-details"></ul>
+      <form method="dialog" class="dialog-actions"><button class="button" data-text="close">Close</button></form>
+    </dialog>
+
+    <dialog id="import-dialog" aria-labelledby="import-title">
+      <h2 id="import-title" data-text="replace">Replace this plan?</h2>
+      <p class="small" data-text="replaceNote">The imported file will replace all planned dates and settings saved in this browser.</p>
+      <div class="dialog-actions">
+        <button type="button" class="button" data-close="import-dialog" data-text="cancel">Cancel</button>
+        <button type="button" class="button primary" id="confirm-import" data-text="import">Import JSON</button>
+      </div>
+    </dialog>
+    <div class="sr-only" id="announcement" role="status"></div>
+
+    <noscript><p>JavaScript is required to use the vacation planner. Für den Urlaubsplaner ist JavaScript erforderlich.</p></noscript>
+  </main>
+</body>
+</html>
